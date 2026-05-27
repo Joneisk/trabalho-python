@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} - AVA System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">{{ course.code }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold">{{ course.title }} <small class="text-muted">({{ course.code }})</small></h2>
+            {% if current_user.is_admin() or (current_user.is_professor() and course.professor_id == current_user.id) %}
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('main.manage_activities', course_id=course.id) }}" class="btn btn-primary btn-sm"><i class="bi bi-gear me-1"></i>Gerenciar Curso</a>
+                    <a href="{{ url_for('main.new_announcement', course_id=course.id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-megaphone me-1"></i>Novo Aviso</a>
+                    <a href="{{ url_for('main.course_analytics', course_id=course.id) }}" class="btn btn-outline-info btn-sm"><i class="bi bi-graph-up me-1"></i>Desempenho</a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="text-muted mb-0">Professor: {{ course.professor.name }} | Semestre: {{ course.semester }}</p>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('main.chat', course_id=course.id) }}" class="btn btn-success btn-sm"><i class="bi bi-chat-dots-fill me-2"></i>Chat da Turma</a>
+                <a href="{{ url_for('main.course_meet', course_id=course.id) }}" class="btn btn-danger btn-sm"><i class="bi bi-camera-video-fill me-2"></i>Aula Síncrona</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Conteúdo Principal -->
+    <div class="col-lg-8">
+        <!-- Abas de Conteúdo -->
+        <ul class="nav nav-tabs mb-4" id="courseTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="materials-tab" data-bs-toggle="tab" data-bs-target="#materials" type="button">Materiais</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="videos-tab" data-bs-toggle="tab" data-bs-target="#videos" type="button">Vídeo-aulas</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities" type="button">Atividades</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="forum-tab" data-bs-toggle="tab" data-bs-target="#forum" type="button">Fórum</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="courseTabsContent">
+            <!-- Materiais -->
+            <div class="tab-pane fade show active" id="materials" role="tabpanel">
+                {% if materials %}
+                    {% for mat in materials %}
+                    <div class="card mb-3 shadow-sm border-0">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="me-3">
+                                {% if mat.file_type == 'pdf' %}
+                                    <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 1.8rem;"></i>
+                                {% elif mat.file_type == 'video' %}
+                                    <i class="bi bi-play-btn text-primary" style="font-size: 1.8rem;"></i>
+                                {% elif mat.file_type == 'ppt' %}
+                                    <i class="bi bi-file-earmark-ppt text-warning" style="font-size: 1.8rem;"></i>
+                                {% else %}
+                                    <i class="bi bi-link-45deg text-success" style="font-size: 1.8rem;"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">{{ mat.title }}</h6>
+                                <small class="text-muted">{{ mat.description or 'Sem descrição' }}</small>
+                            </div>
+                            <div class="text-end">
+                                <a href="{{ mat.external_url or '#' }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi {{ 'bi-box-arrow-up-right' if mat.file_type == 'link' else 'bi-download' }} me-1"></i>
+                                    {{ 'Acessar' if mat.file_type == 'link' else 'Baixar' }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                {% if course.interactive_resources.count() > 0 %}
+                    <h6 class="fw-bold mt-4 mb-3">Recursos Interativos</h6>
+                    {% for res in course.interactive_resources %}
+                    <div class="card mb-3 border-start border-info border-4 shadow-sm">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="bi bi-controller text-info me-3" style="font-size: 1.5rem;"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">{{ res.title }}</h6>
+                                <small class="text-muted">{{ res.resource_type|capitalize }}</small>
+                            </div>
+                            <a href="{{ url_for('main.view_interactive', course_id=course.id, resource_id=res.id) }}" class="btn btn-sm btn-info text-white">Acessar</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if not materials and course.interactive_resources.count() == 0 %}
+                    <div class="text-center py-5 bg-light rounded">
+                        <i class="bi bi-folder2-open text-muted mb-3" style="font-size: 2rem;"></i>
+                        <p>Nenhum material didático postado ainda.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Vídeo-aulas -->
+            <div class="tab-pane fade" id="videos" role="tabpanel">
+                {% if course.video_lessons.count() > 0 %}
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        {% for video in course.video_lessons %}
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0">
+                                <div class="position-relative">
+                                    <img src="{{ video.thumbnail_url or 'https://via.placeholder.com/300x150?text=Video+Aula' }}" class="card-img-top" alt="{{ video.title }}" style="height: 160px; object-fit: cover;">
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <i class="bi bi-play-circle-fill text-white" style="font-size: 3rem; opacity: 0.9;"></i>
+                                    </div>
+                                    <span class="position-absolute bottom-0 end-0 bg-dark text-white px-2 py-1 m-2 small rounded">{{ video.duration }} min</span>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-1">{{ video.title }}</h6>
+                                    <p class="small text-muted mb-0">{{ video.description[:80] }}...</p>
+                                </div>
+                                <div class="card-footer bg-white border-0 pb-3">
+                                    <a href="{{ url_for('main.view_video', course_id=course.id, video_id=video.id) }}" class="btn btn-primary btn-sm w-100">Assistir Agora</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 bg-light rounded">
+                        <i class="bi bi-play-btn text-muted mb-3" style="font-size: 2rem;"></i>
+                        <p>Nenhuma vídeo-aula disponível ainda.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Atividades -->
+            <div class="tab-pane fade" id="activities" role="tabpanel">
+                <h5 class="fw-bold mb-3">Atividades Disponíveis</h5>
+                {% if course.quizzes.count() > 0 or course.assignments.count() > 0 %}
+                    {% for quiz in course.quizzes %}
+                    <div class="card mb-3 border-start border-info border-4">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ quiz.title }}</h6>
+                                <small class="text-danger">Prazo: {{ quiz.due_date.strftime('%d/%m/%Y %H:%M') if quiz.due_date else 'Sem prazo' }}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-info me-3">Quiz</span>
+                                <a href="{{ url_for('main.view_quiz', course_id=course.id, quiz_id=quiz.id) }}" class="btn btn-sm btn-outline-primary">Abrir</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% for task in course.assignments %}
+                    <div class="card mb-3 border-start border-warning border-4">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ task.title }}</h6>
+                                <small class="text-danger">Entrega: {{ task.due_date.strftime('%d/%m/%Y %H:%M') if task.due_date else 'Sem prazo' }}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-warning text-dark me-3">Tarefa</span>
+                                <a href="{{ url_for('main.view_assignment', course_id=course.id, assignment_id=task.id) }}" class="btn btn-sm btn-outline-primary">Abrir</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 bg-light rounded">
+                        <p>Nenhuma atividade cadastrada.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Fórum -->
+            <div class="tab-pane fade" id="forum" role="tabpanel">
+                <div class="d-flex justify-content-between mb-3">
+                    <h5 class="fw-bold">Fórum de Discussão</h5>
+                    <a href="{{ url_for('main.forum', course_id=course.id) }}" class="btn btn-sm btn-primary">Ver Todos os Tópicos</a>
+                </div>
+                <div class="list-group">
+                    {% if threads %}
+                        {% for thread in threads %}
+                        <a href="{{ url_for('main.forum_thread', course_id=course.id, thread_id=thread.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold">{{ thread.title }}</h6>
+                                <small class="text-muted">{{ thread.created_at.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            <small class="text-muted">Iniciado por {{ thread.author.name }}</small>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5 bg-light rounded">
+                            <p>Inicie uma discussão com seus colegas e professores.</p>
+                            <a href="{{ url_for('main.forum', course_id=course.id) }}" class="btn btn-sm btn-outline-primary">Ir para o Fórum</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Comunicação -->
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-chat-dots me-2 text-primary"></i>Comunicação</h5>
+            </div>
+            <div class="card-body p-3">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.chat', course_id=course.id) }}" class="btn btn-outline-primary btn-sm text-start">
+                        <i class="bi bi-chat-fill me-2"></i>Chat da Turma
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Avisos do Curso -->
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-megaphone me-2 text-primary"></i>Avisos</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% if announcements %}
+                        {% for ann in announcements %}
+                        <li class="list-group-item p-3">
+                            <div class="fw-bold small">{{ ann.title }}</div>
+                            <div class="small text-muted">{{ ann.content[:100] }}...</div>
+                            <small class="text-muted d-block mt-1">{{ ann.created_at.strftime('%d/%m/%Y') }}</small>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item p-4 text-center text-muted small">
+                            Nenhum aviso postado.
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Alunos Inscritos (Apenas para Professor/Admin) -->
+        {% if current_user.is_admin() or (current_user.is_professor() and course.professor_id == current_user.id) %}
+        <div class="card">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-people me-2 text-primary"></i>Alunos ({{ course.enrolled_count }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    {% for enrollment in course.enrollments %}
+                    <li class="list-group-item d-flex align-items-center p-3">
+                        <i class="bi bi-person-circle me-2 text-secondary"></i>
+                        <span class="small">{{ enrollment.student.name }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Vídeo-aulas - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item active">Gerenciar Vídeos</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Gerenciar Vídeo-aulas</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulário -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Nova Vídeo-aula</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="title" required placeholder="Ex: Aula 02 - Estruturas de Dados">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL do Vídeo (YouTube/Vimeo)</label>
+                        <input type="url" class="form-control" name="video_url" required placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL da Thumbnail (opcional)</label>
+                        <input type="url" class="form-control" name="thumbnail_url" placeholder="https://...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duração (minutos)</label>
+                        <input type="number" class="form-control" name="duration" value="15">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Adicionar Vídeo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista -->
+    <div class="col-lg-8">
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+            {% for video in videos %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ video.thumbnail_url or 'https://via.placeholder.com/300x150?text=Video' }}" class="card-img-top" style="height: 140px; object-fit: cover;">
+                    <div class="card-body">
+                        <h6 class="fw-bold">{{ video.title }}</h6>
+                        <p class="small text-muted">{{ video.duration }} min</p>
+                    </div>
+                    <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                        <a href="{{ video.video_url }}" class="btn btn-sm btn-outline-primary" target="_blank">Ver</a>
+                        <form action="{{ url_for('main.delete_video', course_id=course.id, video_id=video.id) }}" method="POST">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Excluir vídeo?')"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

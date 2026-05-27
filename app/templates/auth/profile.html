@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil - AVA System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold">Editar Perfil</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label for="name" class="form-label fw-bold">Nome Completo</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">E-mail (não alterável)</label>
+                            <input type="email" class="form-control bg-light" value="{{ user.email }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="department" class="form-label fw-bold">Departamento/Setor</label>
+                            <input type="text" class="form-control" id="department" name="department" value="{{ user.department or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="bio" class="form-label fw-bold">Biografia / Descrição</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="4">{{ user.bio or '' }}</textarea>
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="mb-3 fw-bold text-danger">Alterar Senha</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label for="new_password" class="form-label">Nova Senha (deixe em branco para não alterar)</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Mínimo 6 caracteres">
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

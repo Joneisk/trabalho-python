@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard do Professor - AVA System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2 class="fw-bold">Painel do Docente: {{ current_user.name }}</h2>
+        <p class="text-muted">Gerencie seus cursos e acompanhe o progresso dos alunos.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Cursos Ministrados -->
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-mortarboard me-2 text-primary"></i>Cursos que Ministro</h4>
+            <button class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i>Novo Curso</button>
+        </div>
+        <div class="row">
+            {% if courses %}
+                {% for course in courses %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-primary">{{ course.code }}</span>
+                                <span class="text-muted small"><i class="bi bi-people me-1"></i>{{ course.enrolled_count }} alunos</span>
+                            </div>
+                            <h5 class="card-title fw-bold">{{ course.title }}</h5>
+                            <p class="text-muted small">{{ course.semester }}</p>
+                            <div class="mt-auto">
+                                <div class="row g-1">
+                                    <div class="col-6">
+                                        <a href="{{ url_for('main.manage_materials', course_id=course.id) }}" class="btn btn-xs btn-outline-primary w-100">Materiais</a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ url_for('main.manage_videos', course_id=course.id) }}" class="btn btn-xs btn-outline-primary w-100">Vídeos</a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ url_for('main.manage_activities', course_id=course.id) }}" class="btn btn-xs btn-outline-primary w-100">Atividades</a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ url_for('main.course_analytics', course_id=course.id) }}" class="btn btn-xs btn-outline-info w-100">Dados</a>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <div class="btn-group w-100">
+                                            <a href="{{ url_for('main.course_meet', course_id=course.id) }}" class="btn btn-sm btn-danger"><i class="bi bi-camera-video me-1"></i>Iniciar Aula Síncrona</a>
+                                            <a href="{{ url_for('main.chat', course_id=course.id) }}" class="btn btn-sm btn-success"><i class="bi bi-chat-dots"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card p-5 text-center bg-light">
+                        <p>Você ainda não possui cursos atribuídos.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar do Professor -->
+    <div class="col-lg-4">
+        <!-- Envios Pendentes -->
+        <div class="card mb-4 border-start border-warning border-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-file-earmark-check me-2 text-warning"></i>Correções Pendentes</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% if pending_submissions %}
+                        {% for sub in pending_submissions %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <div>
+                                <div class="fw-bold small">{{ sub.assignment.title }}</div>
+                                <small class="text-muted">Por: {{ sub.student.name.split()[0] if sub.student.name else 'Aluno' }}</small>
+                            </div>
+                            <a href="#" class="btn btn-xs btn-outline-warning">Corrigir</a>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item p-4 text-center text-muted small">
+                            Tudo em dia! Nenhuma tarefa aguardando correção.
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="card">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-graph-up me-2 text-primary"></i>Resumo</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total de Alunos:</span>
+                    <span class="fw-bold">{{ courses|sum(attribute='enrolled_count') if courses else 0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Média da Turma:</span>
+                    <span class="fw-bold text-success">8.5</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

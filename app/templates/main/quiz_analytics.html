@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados do Quiz - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.manage_activities', course_id=course.id) }}">Gerenciar Atividades</a></li>
+                <li class="breadcrumb-item active">Resultados</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Resultados: {{ quiz.title }}</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Tentativas dos Alunos</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Data/Hora</th>
+                                <th>Tentativa</th>
+                                <th>Nota</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in attempts %}
+                            <tr>
+                                <td>{{ attempt.student.name }}</td>
+                                <td class="small">{{ attempt.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ attempt.attempt_number }}</td>
+                                <td class="fw-bold text-primary">{{ attempt.score }}</td>
+                                <td><span class="badge bg-success">Concluído</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ attempt.id }}">
+                                        <i class="bi bi-chat-text"></i> Feedback
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Feedback Modal -->
+                            <div class="modal fade" id="feedbackModal{{ attempt.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Feedback: {{ attempt.student.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="{{ url_for('main.grade_quiz_attempt', course_id=course.id, attempt_id=attempt.id) }}" method="POST">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <p><strong>Nota Automática:</strong> <span class="badge bg-primary fs-6">{{ attempt.score }}</span></p>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Feedback do Professor</label>
+                                                    <textarea class="form-control" name="feedback" rows="5" placeholder="Dê orientações personalizadas baseadas no desempenho do aluno...">{{ attempt.feedback or '' }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                <button type="submit" class="btn btn-primary">Enviar Feedback</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if not attempts %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Nenhuma tentativa realizada ainda.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

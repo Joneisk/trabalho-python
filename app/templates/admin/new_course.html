@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Curso - AVA System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold">Cadastrar Novo Curso</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label for="title" class="form-label fw-bold">Nome do Curso / Disciplina</label>
+                            <input type="text" class="form-control" id="title" name="title" required placeholder="Ex: Algoritmos e Estrutura de Dados">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="code" class="form-label fw-bold">Código</label>
+                            <input type="text" class="form-control" id="code" name="code" required placeholder="Ex: AED001">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="professor_id" class="form-label fw-bold">Professor Responsável</label>
+                            <select class="form-select" id="professor_id" name="professor_id" required>
+                                <option value="" selected disabled>Selecione um professor...</option>
+                                {% for prof in professors %}
+                                <option value="{{ prof.id }}">{{ prof.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="semester" class="form-label fw-bold">Semestre/Ano</label>
+                            <input type="text" class="form-control" id="semester" name="semester" required placeholder="Ex: 2026/1">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-bold">Ementa / Descrição</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="Descreva brevemente o conteúdo do curso..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('main.admin_courses') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">Criar Curso</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

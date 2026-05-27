@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Matricular Aluno - AVA System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold text-primary">Matricular Aluno em Curso</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Selecionar Aluno</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="">Escolha um aluno...</option>
+                            {% for student in students %}
+                            <option value="{{ student.id }}">{{ student.name }} ({{ student.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="course_id" class="form-label">Selecionar Curso</label>
+                        <select class="form-select" id="course_id" name="course_id" required>
+                            <option value="">Escolha um curso...</option>
+                            {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.code }} - {{ course.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Realizar Matrícula</button>
+                        <a href="{{ url_for('main.admin_courses') }}" class="btn btn-light">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

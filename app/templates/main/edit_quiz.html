@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Quiz - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.manage_activities', course_id=course.id) }}">Gerenciar Atividades</a></li>
+                <li class="breadcrumb-item active">Editar Quiz</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Editar Quiz</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título do Quiz</label>
+                        <input type="text" class="form-control" name="title" value="{{ quiz.title }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descrição Curta</label>
+                        <input type="text" class="form-control" name="description" value="{{ quiz.description or '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Instruções</label>
+                        <textarea class="form-control" name="instructions" rows="4">{{ quiz.instructions or '' }}</textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Tempo Limite (min)</label>
+                            <input type="number" class="form-control" name="time_limit" value="{{ quiz.time_limit }}" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Máx. Tentativas</label>
+                            <input type="number" class="form-control" name="max_attempts" value="{{ quiz.max_attempts }}" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Prazo de Entrega</label>
+                            <input type="datetime-local" class="form-control" name="due_date" value="{{ quiz.due_date.strftime('%Y-%m-%dT%H:%M') if quiz.due_date else '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('main.manage_activities', course_id=course.id) }}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-5">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

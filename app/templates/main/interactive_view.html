@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ resource.title }} - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item active">Recurso Interativo</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold">{{ resource.title }}</h4>
+                <span class="badge bg-info text-dark">{{ resource.resource_type|capitalize }}</span>
+            </div>
+            <div class="ratio ratio-16x9 border-bottom">
+                <iframe src="{{ resource.url }}" title="{{ resource.title }}" allowfullscreen></iframe>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="fw-bold">Sobre este recurso</h5>
+                <p>{{ resource.description or 'Este é um recurso interativo projetado para auxiliar no seu aprendizado.' }}</p>
+                
+                <div class="alert alert-light border mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill text-primary fs-4 me-3"></i>
+                        <div>
+                            Se o recurso não carregar corretamente, você pode acessá-lo diretamente através do link:
+                            <br>
+                            <a href="{{ resource.url }}" target="_blank" class="fw-bold">{{ resource.url }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

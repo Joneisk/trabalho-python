@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Análise de Desempenho - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item active">Análise de Desempenho</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Análise de Desempenho</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase small">Total de Alunos</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ total_students }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase small">Tarefas Criadas</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ total_assignments }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase small">Quizzes Publicados</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ total_quizzes }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold">Desempenho dos Alunos (Média Geral)</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Classificação</th>
+                        <th>Aluno</th>
+                        <th>Média Atual</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in stats %}
+                    <tr>
+                        <td class="fw-bold text-muted">#{{ loop.index }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-circle fs-4 text-secondary me-2"></i>
+                                <span>{{ item.student.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-2">{{ item.avg }}</span>
+                                <div class="progress flex-grow-1" style="height: 8px; max-width: 150px;">
+                                    <div class="progress-bar {{ 'bg-success' if item.avg >= 7 else ('bg-warning' if item.avg >= 5 else 'bg-danger') }}" 
+                                         role="progressbar" style="width: {{ item.avg * 10 }}%;" aria-valuenow="{{ item.avg }}" aria-valuemin="0" aria-valuemax="10"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if item.avg >= 7 %}
+                                <span class="badge bg-success">Excelente</span>
+                            {% elif item.avg >= 5 %}
+                                <span class="badge bg-warning text-dark">Atenção</span>
+                            {% else %}
+                                <span class="badge bg-danger">Risco</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not stats %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">Nenhum aluno matriculado.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

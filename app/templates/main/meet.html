@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Aula Síncrona - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item active">Videoconferência</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold"><i class="bi bi-camera-video text-danger me-2"></i>{{ conf.title }}</h2>
+            {% if current_user.is_professor() or current_user.is_admin() %}
+                <span class="badge bg-danger">Você é o Organizador</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <!-- Jitsi Meet Integration -->
+                <div id="meet" style="width: 100%; height: 700px;"></div>
+            </div>
+            <div class="card-footer bg-light p-3 text-center text-muted small">
+                Videoconferência provida por <a href="https://jitsi.org" target="_blank">Jitsi Meet</a>.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://meet.jit.si/external_api.js"></script>
+<script>
+    const domain = 'meet.jit.si';
+    const options = {
+        roomName: 'AVA_Course_{{ course.id }}_Conf_{{ conf.id }}',
+        width: '100%',
+        height: 700,
+        parentNode: document.querySelector('#meet'),
+        userInfo: {
+            displayName: '{{ current_user.name }}'
+        },
+        configOverwrite: {
+            startWithAudioMuted: true,
+            startWithVideoMuted: true
+        },
+        interfaceConfigOverwrite: {
+            SHOW_JITSI_WATERMARK: false
+        }
+    };
+    const api = new JitsiMeetExternalAPI(domain, options);
+</script>
+{% endblock %}

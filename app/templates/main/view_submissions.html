@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Entregas da Tarefa - {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.manage_activities', course_id=course.id) }}">Gerenciar Atividades</a></li>
+                <li class="breadcrumb-item active">Entregas</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Entregas: {{ assignment.title }}</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Trabalhos Enviados</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Data de Envio</th>
+                                <th>Arquivo</th>
+                                <th>Nota</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in submissions %}
+                            <tr>
+                                <td>{{ sub.student.name }}</td>
+                                <td class="small">{{ sub.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td><i class="bi bi-file-earmark-text me-1"></i> {{ sub.file_name or 'trabalho.pdf' }}</td>
+                                <td class="fw-bold text-{{ 'success' if sub.grade is not none else 'warning' }}">
+                                    {{ sub.grade if sub.grade is not none else 'Pendente' }}
+                                </td>
+                                <td>
+                                    <a href="{{ sub.file_path }}" class="btn btn-sm btn-outline-primary" target="_blank" title="Ver Arquivo"><i class="bi bi-file-earmark-arrow-down"></i></a>
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#gradeModal{{ sub.id }}" title="Avaliar"><i class="bi bi-check2-square"></i></button>
+                                </td>
+                            </tr>
+
+                            <!-- Grading Modal -->
+                            <div class="modal fade" id="gradeModal{{ sub.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Avaliar Trabalho: {{ sub.student.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="{{ url_for('main.grade_submission', course_id=course.id, submission_id=sub.id) }}" method="POST">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <p><strong>Comentário do Aluno:</strong><br>
+                                                    <span class="text-muted small">{{ sub.comment or 'Sem comentários.' }}</span></p>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Nota (0 a {{ assignment.max_score }})</label>
+                                                    <input type="number" step="0.1" min="0" max="{{ assignment.max_score }}" class="form-control" name="grade" value="{{ sub.grade or '' }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Feedback Personalizado</label>
+                                                    <textarea class="form-control" name="feedback" rows="4" placeholder="Escreva aqui seu feedback para o aluno...">{{ sub.feedback or '' }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                <button type="submit" class="btn btn-primary">Salvar Avaliação</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if not submissions %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Nenhum trabalho enviado ainda.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard do Aluno - AVA System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2 class="fw-bold">Olá, {{ current_user.name.split()[0] if current_user.name else 'Estudante' }}!</h2>
+        <p class="text-muted">Aqui está o que está acontecendo em seus cursos.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Cursos Matriculados -->
+    <div class="col-lg-8">
+        <h4 class="mb-3 fw-bold"><i class="bi bi-book me-2 text-primary"></i>Meus Cursos</h4>
+        <div class="row">
+            {% if courses %}
+                {% for course in courses %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        {% if course.cover_image %}
+                        <img src="{{ course.cover_image }}" class="card-img-top" alt="{{ course.title }}" style="height: 140px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-primary text-white d-flex align-items-center justify-content-center" style="height: 140px; border-radius: 10px 10px 0 0;">
+                            <i class="bi bi-journal-code" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-truncate">{{ course.title }}</h5>
+                            <p class="card-text text-muted small mb-3">Professor: {{ course.professor.name }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-primary border border-primary">{{ course.code }}</span>
+                                <a href="{{ url_for('main.view_course', course_id=course.id) }}" class="btn btn-sm btn-primary">Acessar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card p-4 text-center">
+                        <i class="bi bi-search text-muted mb-3" style="font-size: 2rem;"></i>
+                        <p>Você ainda não está matriculado em nenhum curso.</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm mx-auto">Explorar Cursos</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar do Dashboard -->
+    <div class="col-lg-4">
+        <!-- Próximas Atividades -->
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-event me-2 text-primary"></i>Próximas Atividades</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% if upcoming_quizzes or upcoming_assignments %}
+                        {% for quiz in upcoming_quizzes %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start p-3">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold text-truncate" style="max-width: 180px;">{{ quiz.title }}</div>
+                                <small class="text-danger">Expira em: {{ quiz.due_date.strftime('%d/%m %H:%M') if quiz.due_date else 'Sem prazo' }}</small>
+                            </div>
+                            <span class="badge bg-info rounded-pill">Quiz</span>
+                        </li>
+                        {% endfor %}
+                        {% for task in upcoming_assignments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start p-3">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold text-truncate" style="max-width: 180px;">{{ task.title }}</div>
+                                <small class="text-danger">Entrega: {{ task.due_date.strftime('%d/%m %H:%M') if task.due_date else 'Sem prazo' }}</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Tarefa</span>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item p-4 text-center text-muted">
+                            Nenhuma atividade pendente para as próximas 2 semanas.
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Avisos -->
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-megaphone me-2 text-primary"></i>Comunicados</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% if announcements %}
+                        {% for ann in announcements %}
+                        <li class="list-group-item p-3 {{ 'bg-light border-start border-primary border-4' if ann.is_pinned else '' }}">
+                            <div class="fw-bold small">{{ ann.title }}</div>
+                            <div class="text-muted small text-truncate">{{ ann.content[:60] }}...</div>
+                            <small class="text-muted d-block mt-1">{{ ann.created_at.strftime('%d/%m/%Y') }}</small>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item p-4 text-center text-muted">
+                            Nenhum aviso no momento.
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Desempenho Geral -->
+        <div class="card shadow-sm border-0 bg-primary text-white">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-3">Seu Desempenho</h5>
+                <div class="display-4 fw-bold mb-1">{{ performance.average_score }}</div>
+                <p class="small text-white-50">Média Geral</p>
+                <div class="row mt-4">
+                    <div class="col-6 border-end border-white-50">
+                        <div class="h5 mb-0 fw-bold">{{ performance.total_quizzes }}</div>
+                        <div class="small text-white-50">Quizzes</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 mb-0 fw-bold">{{ performance.total_assignments }}</div>
+                        <div class="small text-white-50">Trabalhos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

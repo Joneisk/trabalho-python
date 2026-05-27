@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Biblioteca Digital - AVA System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="fw-bold">Biblioteca Digital</h2>
+        <p class="text-muted">Acesse e-books, artigos e materiais de referência para seus estudos.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Filtros -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold">Filtros</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Pesquisar</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="Título ou autor...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Categoria</label>
+                        <select class="form-select form-select-sm">
+                            <option value="">Todas</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de E-books -->
+    <div class="col-md-9">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for ebook in ebooks %}
+            <div class="col">
+                <div class="card h-100">
+                    <img src="{{ ebook.cover_url or 'https://via.placeholder.com/150x200?text=E-Book' }}" class="card-img-top" alt="{{ ebook.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <span class="badge bg-light text-primary mb-2">{{ ebook.category }}</span>
+                        <h6 class="card-title fw-bold mb-1">{{ ebook.title }}</h6>
+                        <p class="card-text small text-muted mb-3">Por: {{ ebook.author }}</p>
+                        <p class="card-text small">{{ ebook.description[:80] }}...</p>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <a href="{{ ebook.file_url or '#' }}" class="btn btn-outline-primary btn-sm w-100">Acessar</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not ebooks %}
+            <div class="col-12">
+                <div class="text-center py-5 bg-white rounded shadow-sm">
+                    <i class="bi bi-book text-muted mb-3" style="font-size: 3rem;"></i>
+                    <p>Nenhum material encontrado na biblioteca no momento.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

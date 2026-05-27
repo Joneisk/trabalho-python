@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Cursos - AVA System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Gerenciar Cursos</h2>
+    <div>
+        <a href="{{ url_for('main.admin_enroll_student') }}" class="btn btn-outline-primary me-2"><i class="bi bi-person-plus me-1"></i>Matricular Aluno</a>
+        <a href="{{ url_for('main.admin_new_course') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Novo Curso</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Título</th>
+                        <th>Professor</th>
+                        <th>Alunos</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><span class="badge bg-light text-primary border border-primary">{{ course.code }}</span></td>
+                        <td class="fw-bold">{{ course.title }}</td>
+                        <td>{{ course.professor.name }}</td>
+                        <td>{{ course.enrolled_count }}</td>
+                        <td>
+                            {% if course.status == 'active' %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% elif course.status == 'archived' %}
+                                <span class="badge bg-secondary">Arquivado</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Rascunho</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('main.admin_edit_course', course_id=course.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <form action="{{ url_for('main.admin_delete_course', course_id=course.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este curso? Todos os dados vinculados serão perdidos.')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not courses %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Nenhum curso cadastrado ainda.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

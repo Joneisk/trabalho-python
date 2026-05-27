@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Atividades - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item active">Gerenciar Atividades</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Gerenciar Atividades e Avaliações</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quizzes -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-info">Quizzes / Questionários</h5>
+                <a href="{{ url_for('main.new_quiz', course_id=course.id) }}" class="btn btn-sm btn-info text-white"><i class="bi bi-plus-lg"></i></a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for quiz in quizzes %}
+                    <li class="list-group-item p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">{{ quiz.title }}</div>
+                                <small class="text-muted">Prazo: {{ quiz.due_date.strftime('%d/%m/%Y') if quiz.due_date else 'Sem prazo' }}</small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('main.edit_quiz', course_id=course.id, quiz_id=quiz.id) }}" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-pencil"></i></a>
+                                <a href="{{ url_for('main.quiz_analytics', course_id=course.id, quiz_id=quiz.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-bar-chart"></i></a>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                    {% if not quizzes %}
+                    <li class="list-group-item p-4 text-center text-muted">Nenhum quiz criado.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarefas -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-warning">Tarefas / Trabalhos</h5>
+                <a href="{{ url_for('main.new_assignment', course_id=course.id) }}" class="btn btn-sm btn-warning text-dark"><i class="bi bi-plus-lg"></i></a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for task in assignments %}
+                    <li class="list-group-item p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">{{ task.title }}</div>
+                                <small class="text-muted">Entrega: {{ task.due_date.strftime('%d/%m/%Y') if task.due_date else 'Sem prazo' }}</small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('main.edit_assignment', course_id=course.id, assignment_id=task.id) }}" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-pencil"></i></a>
+                                <a href="{{ url_for('main.view_submissions', course_id=course.id, assignment_id=task.id) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-check2-all"></i></a>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                    {% if not assignments %}
+                    <li class="list-group-item p-4 text-center text-muted">Nenhuma tarefa criada.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

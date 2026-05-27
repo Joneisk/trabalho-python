@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Curso - AVA System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold text-primary">Editar Curso</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="title" class="form-label">Título do Curso</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ course.title }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="code" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="code" name="code" value="{{ course.code }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="professor_id" class="form-label">Professor Responsável</label>
+                            <select class="form-select" id="professor_id" name="professor_id" required>
+                                {% for prof in professors %}
+                                <option value="{{ prof.id }}" {{ 'selected' if course.professor_id == prof.id }}>{{ prof.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="semester" class="form-label">Semestre</label>
+                            <input type="text" class="form-control" id="semester" name="semester" value="{{ course.semester }}" required placeholder="Ex: 2026.1">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status do Curso</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="active" {{ 'selected' if course.status == 'active' }}>Ativo</option>
+                            <option value="archived" {{ 'selected' if course.status == 'archived' }}>Arquivado</option>
+                            <option value="draft" {{ 'selected' if course.status == 'draft' }}>Rascunho</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="description" name="description" rows="5">{{ course.description }}</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('main.admin_courses') }}" class="btn btn-light me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-5">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

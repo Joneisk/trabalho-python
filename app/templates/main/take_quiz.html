@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Realizando Quiz - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                <h4 class="mb-0">{{ quiz.title }}</h4>
+                {% if quiz.time_limit %}
+                    <div id="timer" class="badge bg-light text-primary fs-6">
+                        Tempo: {{ quiz.time_limit }}:00
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" id="quiz-form">
+                    {% for question in questions %}
+                        <div class="mb-5 p-4 border rounded bg-light">
+                            <h5 class="mb-4">Questão {{ loop.index }}: {{ question.question_text }}</h5>
+                            
+                            <div class="form-check mb-3 p-3 border rounded bg-white">
+                                <input class="form-check-input ms-0" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}a" value="A" required>
+                                <label class="form-check-label ms-2" for="q{{ question.id }}a">
+                                    <span class="fw-bold me-2">A)</span> {{ question.option_a }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-3 p-3 border rounded bg-white">
+                                <input class="form-check-input ms-0" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}b" value="B">
+                                <label class="form-check-label ms-2" for="q{{ question.id }}b">
+                                    <span class="fw-bold me-2">B)</span> {{ question.option_b }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-3 p-3 border rounded bg-white">
+                                <input class="form-check-input ms-0" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}c" value="C">
+                                <label class="form-check-label ms-2" for="q{{ question.id }}c">
+                                    <span class="fw-bold me-2">C)</span> {{ question.option_c }}
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-0 p-3 border rounded bg-white">
+                                <input class="form-check-input ms-0" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}d" value="D">
+                                <label class="form-check-label ms-2" for="q{{ question.id }}d">
+                                    <span class="fw-bold me-2">D)</span> {{ question.option_d }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <button type="button" class="btn btn-lg btn-outline-secondary px-5" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                        <button type="submit" class="btn btn-lg btn-primary px-5">Finalizar e Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Tentativa?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja cancelar? Suas respostas não serão salvas e esta tentativa poderá ser contabilizada dependendo das configurações.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continuar Respondendo</button>
+                <a href="{{ url_for('main.view_quiz', course_id=course.id, quiz_id=quiz.id) }}" class="btn btn-danger">Sim, Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if quiz.time_limit %}
+<script>
+    let timeLeft = {{ quiz.time_limit }} * 60;
+    const timerDisplay = document.getElementById('timer');
+    
+    const countdown = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `Tempo: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            alert('Tempo esgotado! Seu quiz será enviado automaticamente.');
+            document.getElementById('quiz-form').submit();
+        }
+        timeLeft--;
+    }, 1000);
+</script>
+{% endif %}
+{% endblock %}

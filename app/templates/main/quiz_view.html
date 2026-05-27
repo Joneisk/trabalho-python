@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - AVA System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_course', course_id=course.id) }}">{{ course.code }}</a></li>
+                <li class="breadcrumb-item active">Quiz</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">{{ quiz.title }}</h2>
+        <p class="text-muted">{{ course.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Instruções</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ quiz.instructions or 'Siga as instruções abaixo para realizar o quiz.' }}</p>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span><i class="bi bi-clock me-2"></i>Tempo Limite</span>
+                        <span class="fw-bold">{{ quiz.time_limit }} minutos</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span><i class="bi bi-question-circle me-2"></i>Questões</span>
+                        <span class="fw-bold">{{ quiz.questions.count() }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span><i class="bi bi-repeat me-2"></i>Tentativas Permitidas</span>
+                        <span class="fw-bold">{{ quiz.max_attempts }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span><i class="bi bi-calendar-event me-2"></i>Prazo</span>
+                        <span class="fw-bold text-danger">{{ quiz.due_date.strftime('%d/%m/%Y %H:%M') if quiz.due_date else 'Sem prazo' }}</span>
+                    </li>
+                </ul>
+                
+                {% if attempt_count < quiz.max_attempts %}
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('main.take_quiz', course_id=course.id, quiz_id=quiz.id) }}" class="btn btn-primary btn-lg px-5">Iniciar Quiz</a>
+                    <p class="small text-muted mt-2">Tentativa {{ attempt_count + 1 }} de {{ quiz.max_attempts }}</p>
+                </div>
+                {% else %}
+                <div class="alert alert-warning text-center">
+                    Você já atingiu o limite máximo de tentativas para este quiz.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Seu Desempenho</h5>
+            </div>
+            <div class="card-body">
+                {% if best_attempt %}
+                <div class="text-center mb-3">
+                    <div class="display-4 fw-bold text-primary">{{ best_attempt.score }}</div>
+                    <p class="text-muted">Melhor Nota</p>
+                </div>
+                {% if best_attempt.feedback %}
+                <div class="alert alert-info small mb-3 p-2">
+                    <div class="fw-bold mb-1 text-dark"><i class="bi bi-chat-text-fill me-1"></i>Feedback:</div>
+                    "{{ best_attempt.feedback }}"
+                </div>
+                {% endif %}
+                <div class="small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Tentativas realizadas:</span>
+                        <span class="fw-bold">{{ attempt_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Status:</span>
+                        <span class="badge bg-success">Concluído</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">Nenhuma tentativa realizada.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

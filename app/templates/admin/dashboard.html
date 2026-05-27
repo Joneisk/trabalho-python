@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Administrativo - AVA System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2 class="fw-bold">Gestão do Sistema</h2>
+        <p class="text-muted">Visão geral e estatísticas globais do AVA.</p>
+    </div>
+</div>
+
+<!-- Cartões de Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase small">Total de Alunos</h6>
+                <h2 class="display-6 fw-bold">{{ stats.total_students }}</h2>
+                <i class="bi bi-people position-absolute top-50 end-0 translate-middle-y me-3 opacity-50" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase small">Professores</h6>
+                <h2 class="display-6 fw-bold">{{ stats.total_professors }}</h2>
+                <i class="bi bi-person-badge position-absolute top-50 end-0 translate-middle-y me-3 opacity-50" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase small">Cursos Ativos</h6>
+                <h2 class="display-6 fw-bold">{{ stats.active_courses }}</h2>
+                <i class="bi bi-journal-check position-absolute top-50 end-0 translate-middle-y me-3 opacity-50" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase small">Matrículas</h6>
+                <h2 class="display-6 fw-bold">{{ stats.total_enrollments }}</h2>
+                <i class="bi bi-check2-circle position-absolute top-50 end-0 translate-middle-y me-3 opacity-50" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Últimos Usuários -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Novos Usuários</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in stats.recent_users %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td><span class="badge {{ 'bg-success' if user.role == 'professor' else 'bg-primary' }}">{{ user.role }}</span></td>
+                                <td class="small">{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos Cursos -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Cursos Recentes</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Título</th>
+                                <th>Professor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in stats.recent_courses %}
+                            <tr>
+                                <td class="fw-bold">{{ course.title }}</td>
+                                <td class="small">{{ course.professor.name }}</td>
+                                <td><span class="badge bg-light text-success border border-success">{{ course.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-gear-fill me-2"></i>Ações Administrativas</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('main.admin_users') }}" class="btn btn-primary"><i class="bi bi-people me-2"></i>Gerenciar Usuários</a>
+                    <a href="{{ url_for('main.admin_courses') }}" class="btn btn-success"><i class="bi bi-journal-code me-2"></i>Gerenciar Cursos</a>
+                    <a href="{{ url_for('main.admin_enroll_student') }}" class="btn btn-warning"><i class="bi bi-person-check me-2"></i>Matricular Alunos</a>
+                    <a href="{{ url_for('main.admin_manage_library') }}" class="btn btn-info text-white"><i class="bi bi-book me-2"></i>Gerenciar Biblioteca</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
